@@ -26,27 +26,43 @@ def main():
     count = 0
     json = response.json()
     next_page = json['data']['after']
+    post_list = []
+    
     while (next_page != None):
         print(next_page)
+        dist = json['data']['dist']
         count = count + 1
         response = requests.get('https://www.reddit.com/r/streetwear/.json?after={}&limit=100'.format(next_page), 
                             proxies=proxies,
-                            headers={"User-Agent": random.choice(user_agents)}) 
+                            headers={"User-Agent": random.choice(user_agents)}
+                            ) 
+
+        for i in range(dist):
+            post = json['data']['children'][i]['data']
+            flair = post['link_flair_text']
+            created = post['created_utc']
+            subreddit_subscribers = post['subreddit_subscribers']
+            url = post['url_overridden_by_dest']
+            saved_post = (flair, created, subreddit_subscribers, url)
+            post_list.append(saved_post)
+
         json = response.json()
         next_page = json['data']['after']
+
     print('count: ' + str(count))
 
-    response = requests.get('https://i.redd.it/lkq4drngzos91.jpg', 
-                        stream = True,
-                        proxies=proxies,
-                        headers={"User-Agent": random.choice(user_agents)}
-                        )
-    if response.status_code == 200:
-        with open('test.jpg','wb') as f:
-            shutil.copyfileobj(response.raw, f)
-        print('Image sucessfully Downloaded: ','test.jpg')
-    else:
-        print('Image Couldn\'t be retrieved')
+    # response = requests.get('https://i.redd.it/lkq4drngzos91.jpg', 
+    #                     stream = True,
+    #                     proxies=proxies,
+    #                     headers={"User-Agent": random.choice(user_agents)}
+    #                     )
+
+    # if response.status_code == 200:
+    #     # with open('test.jpg','wb') as f:
+    #     #     shutil.copyfileobj(response.raw, f)
+    #     print('Image sucessfully Downloaded: ','test.jpg')
+    # else:
+    #     print('Image Couldn\'t be retrieved')
 
 
 if __name__=='__main__':
