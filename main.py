@@ -1,5 +1,6 @@
 import requests
 import random as random
+import shutil
 
 proxies = {
     'http': '103.49.202.252:80',
@@ -17,14 +18,35 @@ user_agents = [
     ]
 
 def main():
-    response = requests.get('https://www.reddit.com/r/streetwear/top/.json', 
+    response = requests.get('https://www.reddit.com/r/streetwear/.json', 
                         proxies=proxies,
-                        headers={"User-Agent": random.choice(user_agents)})
-    print(response.status_code)
-    print(response.headers)
-    #print(response.json())
-    
-   
+                        headers={"User-Agent": random.choice(user_agents)}
+                        )
+
+    count = 0
+    json = response.json()
+    next_page = json['data']['after']
+    while (next_page != None):
+        print(next_page)
+        count = count + 1
+        response = requests.get('https://www.reddit.com/r/streetwear/.json?after={}&limit=100'.format(next_page), 
+                            proxies=proxies,
+                            headers={"User-Agent": random.choice(user_agents)}) 
+        json = response.json()
+        next_page = json['data']['after']
+    print('count: ' + str(count))
+
+    response = requests.get('https://i.redd.it/lkq4drngzos91.jpg', 
+                        stream = True,
+                        proxies=proxies,
+                        headers={"User-Agent": random.choice(user_agents)}
+                        )
+    if response.status_code == 200:
+        with open('test.jpg','wb') as f:
+            shutil.copyfileobj(response.raw, f)
+        print('Image sucessfully Downloaded: ','test.jpg')
+    else:
+        print('Image Couldn\'t be retrieved')
 
 
 if __name__=='__main__':
