@@ -18,7 +18,7 @@ user_agents = [
     ]
 
 def main():
-    response = requests.get('https://www.reddit.com/r/streetwear/.json', 
+    response = requests.get('https://www.reddit.com/r/streetwear/new/.json', 
                         proxies=proxies,
                         headers={"User-Agent": random.choice(user_agents)}
                         )
@@ -27,12 +27,12 @@ def main():
     json = response.json()
     next_page = json['data']['after']
     post_list = []
-    
+
     while (next_page != None):
         print(next_page)
         dist = json['data']['dist']
         count = count + 1
-        response = requests.get('https://www.reddit.com/r/streetwear/.json?after={}&limit=100'.format(next_page), 
+        response = requests.get('https://www.reddit.com/r/streetwear/new/.json?after={}&limit=100'.format(next_page), 
                             proxies=proxies,
                             headers={"User-Agent": random.choice(user_agents)}
                             ) 
@@ -42,14 +42,16 @@ def main():
             flair = post['link_flair_text']
             created = post['created_utc']
             subreddit_subscribers = post['subreddit_subscribers']
-            url = post['url_overridden_by_dest']
+            url = post['url']
             saved_post = (flair, created, subreddit_subscribers, url)
             post_list.append(saved_post)
 
         json = response.json()
         next_page = json['data']['after']
 
+
     print('count: ' + str(count))
+    print('posts: ' + str(len(post_list)))
 
     # response = requests.get('https://i.redd.it/lkq4drngzos91.jpg', 
     #                     stream = True,
