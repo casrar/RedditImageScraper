@@ -18,40 +18,45 @@ user_agents = [
     ]
 
 def main():
-    response = requests.get('https://www.reddit.com/r/streetwear/new/.json', 
+    response = requests.get('https://api.pushshift.io/reddit/search/submission/?q=wdywt&subreddit=streetwear&size=1&after=40d', 
                         proxies=proxies,
                         headers={"User-Agent": random.choice(user_agents)}
                         )
+    print(response.json())
+    # response = requests.get('https://www.reddit.com/r/streetwear/new/.json', 
+    #                     proxies=proxies,
+    #                     headers={"User-Agent": random.choice(user_agents)}
+    #                     )
 
-    count = 0
-    json = response.json()
-    next_page = json['data']['after']
-    post_list = []
+    # count = 0
+    # json = response.json()
+    # next_page = json['data']['after']
+    # post_list = []
 
-    while (next_page != None):
-        print(next_page)
-        dist = json['data']['dist']
-        count = count + 1
-        response = requests.get('https://www.reddit.com/r/streetwear/new/.json?after={}&limit=100'.format(next_page), 
-                            proxies=proxies,
-                            headers={"User-Agent": random.choice(user_agents)}
-                            ) 
+    # while (next_page != None):
+    #     print(next_page)
+    #     dist = json['data']['dist']
+    #     count = count + 1
+    #     response = requests.get('https://www.reddit.com/r/streetwear/new/.json?after={}&limit=100'.format(next_page), 
+    #                         proxies=proxies,
+    #                         headers={"User-Agent": random.choice(user_agents)}
+    #                         ) 
 
-        for i in range(dist):
-            post = json['data']['children'][i]['data']
-            flair = post['link_flair_text']
-            created = post['created_utc']
-            subreddit_subscribers = post['subreddit_subscribers']
-            url = post['url']
-            saved_post = (flair, created, subreddit_subscribers, url)
-            post_list.append(saved_post)
+    #     for i in range(dist):
+    #         post = json['data']['children'][i]['data']
+    #         flair = post['link_flair_text']
+    #         created = post['created_utc']
+    #         subreddit_subscribers = post['subreddit_subscribers']
+    #         url = post['url']
+    #         saved_post = (flair, created, subreddit_subscribers, url)
+    #         post_list.append(saved_post)
 
-        json = response.json()
-        next_page = json['data']['after']
+    #     json = response.json()
+    #     next_page = json['data']['after']
 
 
-    print('count: ' + str(count))
-    print('posts: ' + str(len(post_list)))
+    # print('count: ' + str(count))
+    # print('posts: ' + str(len(post_list)))
 
     # response = requests.get('https://i.redd.it/lkq4drngzos91.jpg', 
     #                     stream = True,
@@ -65,6 +70,8 @@ def main():
     #     print('Image sucessfully Downloaded: ','test.jpg')
     # else:
     #     print('Image Couldn\'t be retrieved')
+
+
 
 
 if __name__=='__main__':
