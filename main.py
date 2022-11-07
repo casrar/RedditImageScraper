@@ -2,6 +2,7 @@ import requests
 import random as random
 import shutil
 import time
+import math
 
 proxies = {
     'http': '103.49.202.252:80',
@@ -48,11 +49,12 @@ def main():
     MAX_API_CALLS = 5
     page_count = 1
     calls = 1
+    epoch = math.floor(time.time())
+
     file = open("urls.txt", "a", encoding="utf-8")
     while(True):
         for calls in range (MAX_API_CALLS):
-            response = requests.get('https://api.pushshift.io/reddit/search/submission/' 
-                                    + '?link_flair_text=WDYWT&subreddit=streetwear&size=250&after={}d'.format(page_count), 
+            response = requests.get('https://api.pushshift.io/reddit/search/submission/?subreddit=streetwear&sort=desc&size=250&after={}s'.format(epoch), 
                         proxies=proxies,
                         headers={"User-Agent": random.choice(user_agents)}
                         )
@@ -63,19 +65,21 @@ def main():
                 break
             i = 0
             for x in range(posts):
-                if 'removed_by_category' not in response['data'][x]:
-                    # print(response['data'][x]['url'])
+                
+                if ('removed_by_category' not in response['data'][x]) and ('link_flair_text' in response['data'][x] and response['data'][x]['link_flair_text'] == 'WDYWT'):
+                    print(response['data'][x]['url'])
                     file.write(response['data'][x]['url'] + '\n')
                     i = i + 1
                 else:
                     # print('removed')
                     i = i + 1
+                epoch = response['data'][x]['created_utc']
                 # print(i)
+
 
             calls = calls + 1
             page_count = page_count + 1
-            # print(calls)
-            print('pages: ' + str(page_count))
+            print('pages: ' + str(page_count - 1))
             time.sleep(3)
         calls = 1
         
