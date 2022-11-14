@@ -27,104 +27,66 @@ user_agents = [
     # print(response['data'][0]['subreddit_subscribers'])
     # print(response['data'][0]['upvote_ratio'])
     # print(response['data'][0]['media_metadata'])
-    # print(response['data'][0]['url']) access to url on gallery
     # Maybe image resolution
-    # _1rZYMD_4xY3gRcSS3p8ODO _3a2ZHWaih05DgAOtvu6cIo UPVOTE BUTTON
     # Need to grab the post time
     # Need to grab the upvote ratio
     # Need to grab community size
     # For individual pics all I need is the url
-    # For galleries I need to open link for page, find html with images and download images 
+
+    # YOU CAN EXTRACT GALLERY URLS, https://preview.redd.it/quk3m6qqxey91.jpg?width=2871&amp;format=pjpg&amp;auto=webp&amp;s=dafbffa08b196b69b2693504cfcb945caa206ebf
+    # REPLACE &amp with & and links work!
+
+    # Functionality:
+    # cmd line args (subreddit, deleted, resume, url list or download)
+    # resume file (epoch time, page #)
+
 
 def main():
-    # response = requests.get('https://api.pushshift.io/reddit/search/submission/?link_flair_text=WDYWT&subreddit=streetwear&size=250&after=0d', 
+    # response = requests.get('https://api.pushshift.io/reddit/search/submission/?link_flair_text=WDYWT&subreddit=streetwear&size=1&after=3d', 
     #                     proxies=proxies,
     #                     headers={"User-Agent": random.choice(user_agents)}
     #                     )
     # response = response.json()
-    # print()
+    # print(response['data'][0]['full_link'])
 
 
-    # USE RESULTS TO HIT REDDIT API FOR UPDATED/IN DEPTH INFO
+    #USE RESULTS TO HIT REDDIT API FOR UPDATED/IN DEPTH INFO
     MAX_API_CALLS = 5
     page_count = 1
     calls = 1
-    epoch = math.floor(time.time())
-
+    # epoch = math.floor(time.time())
+    epoch = 1304170869 # remove later 
     file = open("urls.txt", "a", encoding="utf-8")
-    while(True):
+    posts = 1
+    while(posts > 0):
         for calls in range (MAX_API_CALLS):
-            response = requests.get('https://api.pushshift.io/reddit/search/submission/?subreddit=streetwear&sort=desc&size=250&after={}s'.format(epoch), 
+            response = requests.get('https://api.pushshift.io/reddit/search/submission/?subreddit=streetwear&sort=desc&size=250&before={}'.format(epoch), 
                         proxies=proxies,
                         headers={"User-Agent": random.choice(user_agents)}
                         )
             print(response)
             response = response.json()
             posts = len(response['data'])
+
             if (posts == 0):
                 break
+        
             i = 0
             for x in range(posts):
-                
                 if ('removed_by_category' not in response['data'][x]) and ('link_flair_text' in response['data'][x] and response['data'][x]['link_flair_text'] == 'WDYWT'):
-                    print(response['data'][x]['url'])
-                    file.write(response['data'][x]['url'] + '\n')
+                    file.write(response['data'][x]['full_link'] + '\n')
                     i = i + 1
                 else:
-                    # print('removed')
                     i = i + 1
-                epoch = response['data'][x]['created_utc']
-                # print(i)
-
+                epoch = response['data'][x]['created_utc'] 
 
             calls = calls + 1
             page_count = page_count + 1
+            print('last epoch: ' + str(epoch))
             print('pages: ' + str(page_count - 1))
             time.sleep(3)
         calls = 1
         
-
-
-    # response = requests.get('https://www.reddit.com/r/streetwear/new/.json', 
-    #                     proxies=proxies,
-    #                     headers={"User-Agent": random.choice(user_agents)}
-    #                     )
-
-    # count = 0
-    # json = response.json()
-    # next_page = json['data']['after']
-    # post_list = []
-
-    # while (next_page != None):
-    #     print(next_page)
-    #     dist = json['data']['dist']
-    #     count = count + 1
-    #     response = requests.get('https://www.reddit.com/r/streetwear/new/.json?after={}&limit=100'.format(next_page), 
-    #                         proxies=proxies,
-    #                         headers={"User-Agent": random.choice(user_agents)}
-    #                         ) 
-
-    #     for i in range(dist):
-    #         post = json['data']['children'][i]['data']
-    #         flair = post['link_flair_text']
-    #         created = post['created_utc']
-    #         subreddit_subscribers = post['subreddit_subscribers']
-    #         url = post['url']
-    #         saved_post = (flair, created, subreddit_subscribers, url)
-    #         post_list.append(saved_post)
-
-    #     json = response.json()
-    #     next_page = json['data']['after']
-
-
-    # print('count: ' + str(count))
-    # print('posts: ' + str(len(post_list)))
-
-    # response = requests.get('https://preview.redd.it/rx482lzocnx91.jpg?width=960&amp;crop=smart&amp;auto=webp&amp;s=ab1f175d91f00becc20aaf1fa1b259ab209bda16', 
-    #                     stream = True,
-    #                     proxies=proxies,
-    #                     headers={"User-Agent": random.choice(user_agents)}
-    #                     )
 
     # if response.status_code == 200:
     #     # with open('test.jpg','wb') as f:
