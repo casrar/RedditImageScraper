@@ -3,6 +3,8 @@ import random as random
 import shutil
 import time
 import math
+import os
+import argparse
 
 proxies = {
     'http': '103.49.202.252:80',
@@ -19,7 +21,6 @@ user_agents = [
     'Edge: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.53'
     ]
 
-# print(response)
     # print(response['data'][0]['preview']) #individual pic
     # print(response['data'][0]['url'])
     # print(response['data'][0]['created_utc'])
@@ -38,65 +39,105 @@ user_agents = [
 
     # Functionality:
     # cmd line args (subreddit, deleted, resume, url list or download)
-    # resume file (epoch time, page #)
+    # resume file 
+    ## Tmp file
+    ## Contains last action and progress
+    ## Save urls to file called url and url sorted 
 
 
 def main():
-    # response = requests.get('https://api.pushshift.io/reddit/search/submission/?link_flair_text=WDYWT&subreddit=streetwear&size=1&after=3d', 
-    #                     proxies=proxies,
-    #                     headers={"User-Agent": random.choice(user_agents)}
-    #                     )
-    # response = response.json()
-    # print(response['data'][0]['full_link'])
+    parser = argparse.ArgumentParser(
+        prog='RedditImageScraper',
+        description='A scraper to download all images from a specified subreddit.'
+    )
 
+    parser.add_argument('-r', dest='resume', default=False, required=False, action='store_true',
+        help='Resume scraper using resume file.')
 
-    #USE RESULTS TO HIT REDDIT API FOR UPDATED/IN DEPTH INFO
-    MAX_API_CALLS = 5
-    page_count = 1
-    calls = 1
-    # epoch = math.floor(time.time())
-    epoch = 1304170869 # remove later 
-    file = open("urls.txt", "a", encoding="utf-8")
-    posts = 1
-    while(posts > 0):
-        for calls in range (MAX_API_CALLS):
-            response = requests.get('https://api.pushshift.io/reddit/search/submission/?subreddit=streetwear&sort=desc&size=250&before={}'.format(epoch), 
-                        proxies=proxies,
-                        headers={"User-Agent": random.choice(user_agents)}
-                        )
-            print(response)
-            response = response.json()
-            posts = len(response['data'])
+    args = parser.parse_args()
+    try:
+        if not os.path.isdir('temp'):
+            os.mkdir('temp')
 
-            if (posts == 0):
-                break
+        if not os.path.isdir('images'):
+            os.mkdir('images')
+    except:
+        print('Error with directories.')
         
-            i = 0
-            for x in range(posts):
-                if ('removed_by_category' not in response['data'][x]) and ('link_flair_text' in response['data'][x] and response['data'][x]['link_flair_text'] == 'WDYWT'):
-                    file.write(response['data'][x]['full_link'] + '\n')
-                    i = i + 1
-                else:
-                    i = i + 1
-                epoch = response['data'][x]['created_utc'] 
+    action='a'
+    progress=0
+    threads=1
+    try: 
+        if not os.path.isfile('temp\.resume'):
+            resume = open("temp\.resume", 'w', encoding='utf-8')
+            resume.write('action=' + str(action) + '\n')
+            resume.write('progress=' + str(progress) + '\n')
+            resume.write('threads=' + str(threads) + '\n')
+        else:
+            resume = open("temp\.resume", 'r', encoding='utf-8')
+            action = resume.readline().split('=')
+            action = action[1]
+            progress = resume.readline().split('=')
+            progress = action[1]
+            threads = resume.readline().split('=')
+            threads = action[1]
+    except:
+        print('Error with resume.')
 
-            calls = calls + 1
-            page_count = page_count + 1
-            print('last epoch: ' + str(epoch))
-            print('pages: ' + str(page_count - 1))
-            time.sleep(3)
-        calls = 1
-        
 
+    if action is not 'a' or 'd':
+        print('Invalid action')
+    if progress < 0:
+        print('Invalid progress')
+    if progress < 0:
+        print('Invalid threads ')
+
+    if action == 'a':
+        print('a')
+        #USE RESULTS TO HIT REDDIT API FOR UPDATED/IN DEPTH INFO
+        # MAX_PUSHSHIFT_CALLS = 5
+        # page_count = 1
+        # calls = 1
+        # epoch = math.floor(time.time())
+        # file = open("urls.txt", "a", encoding="utf-8")
+        # posts = 1
+        # while(posts > 0):
+        #     for calls in range (MAX_PUSHSHIFT_CALLS):
+        #         response = requests.get('https://api.pushshift.io/reddit/search/submission/?subreddit=streetwear&sort=desc&size=250&before={}'.format(epoch), 
+        #                     proxies=proxies,
+        #                     headers={"User-Agent": random.choice(user_agents)}
+        #                     )
+        #         print(response)
+        #         response = response.json()
+        #         posts = len(response['data'])
+
+        #         if (posts == 0):
+        #             break
+            
+        #         i = 0
+        #         for x in range(posts):
+        #             if ('removed_by_category' not in response['data'][x]) and ('link_flair_text' in response['data'][x] and response['data'][x]['link_flair_text'] == 'WDYWT'):
+        #                 url_list.append(response['data'][x]['full_link'])
+        #                 file.write(response['data'][x]['full_link'] + '\n')
+        #                 i = i + 1
+        #             else:
+        #                 i = i + 1
+        #             epoch = response['data'][x]['created_utc'] 
+
+        #         calls = calls + 1
+        #         page_count = page_count + 1
+        #         print('last epoch: ' + str(epoch))
+        #         print('pages: ' + str(page_count - 1))
+        #         time.sleep(3)
+        #     calls = 1
+    elif action == 'd':
     # if response.status_code == 200:
     #     # with open('test.jpg','wb') as f:
     #     #     shutil.copyfileobj(response.raw, f)
     #     print('Image sucessfully Downloaded: ','test.jpg')
     # else:
     #     print('Image Couldn\'t be retrieved')
-
-
-
+        print('d')
 
 if __name__=='__main__':
     main()
