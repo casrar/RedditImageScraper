@@ -45,17 +45,16 @@ user_agents = [
 def main(): 
     MAX_REDDIT_CALLS = 25
     url_list = []
-    with open("temp/urls.txt",'r', encoding="utf-8") as data_file:
+    with open("temp/urls_sorted.txt",'r', encoding="utf-8") as data_file:
             for line in data_file:
                 data = line.split()
                 url_list.append(data[0])
-    
-    file = open("urls_sorted.txt", "a", encoding="utf-8")
+  
     calls = 1
-    url_list_position = 43076 #
-    url_count = 27285 # 
+    url_list_position = 51626 #
+    url_count = 32957 # 
     proxy_index = 0
-    while(True):
+    while(url_list_position < len(url_list)):
         proxy_index = proxy_index % len(ip_addresses)
         proxy = {'http': ip_addresses[proxy_index]}
         print('Using: ' + str(proxy))
@@ -80,16 +79,14 @@ def main():
 
             print(response)
             response = response.json()
-            print(url_list[url_list_position])
             if (response[0]['data']['children'][0]['data']['removed_by_category'] == None):
+                print(url_list[url_list_position])
                 file.write(url_list[url_list_position] + '\n')
                 url_count = url_count + 1
             url_list_position = url_list_position + 1
             calls = calls + 1
-        #time.sleep(5)
         print('urls: ' + str(url_count))
-        if (url_list_position >= len(url_list)):
-            break
+        
     print('urls: ' + url_count)
 
 if __name__=='__main__':
